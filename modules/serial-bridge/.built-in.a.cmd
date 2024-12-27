@@ -1,0 +1,1 @@
+cmd_/home/tux/Projects/sniffer-serial/modules/serial-bridge/built-in.a := rm -f /home/tux/Projects/sniffer-serial/modules/serial-bridge/built-in.a; ar cDPrST /home/tux/Projects/sniffer-serial/modules/serial-bridge/built-in.a 

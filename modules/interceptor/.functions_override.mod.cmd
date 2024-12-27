@@ -1,0 +1,1 @@
+cmd_/home/tux/Projects/sniffer-serial/modules/interceptor/functions_override.mod := { echo  /home/tux/Projects/sniffer-serial/modules/interceptor/functions_override.o; echo; } > /home/tux/Projects/sniffer-serial/modules/interceptor/functions_override.mod

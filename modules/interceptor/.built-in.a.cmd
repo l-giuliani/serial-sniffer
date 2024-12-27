@@ -1,0 +1,1 @@
+cmd_/home/tux/Projects/sniffer-serial/modules/interceptor/built-in.a := rm -f /home/tux/Projects/sniffer-serial/modules/interceptor/built-in.a; ar cDPrST /home/tux/Projects/sniffer-serial/modules/interceptor/built-in.a 

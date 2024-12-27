@@ -1,0 +1,9 @@
+rm  bin/* bin/*/*
+mkdir tmpfolder
+mv build/vendor tmpfolder/
+rm -rf build
+mkdir build
+mv tmpfolder/vendor build/vendor
+rm -rf tmpfolder
+cd build
+$CMAKE ../

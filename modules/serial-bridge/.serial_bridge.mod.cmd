@@ -1,0 +1,1 @@
+cmd_/home/tux/Projects/sniffer-serial/modules/serial-bridge/serial_bridge.mod := { echo  /home/tux/Projects/sniffer-serial/modules/serial-bridge/serial_bridge.o; echo; } > /home/tux/Projects/sniffer-serial/modules/serial-bridge/serial_bridge.mod
