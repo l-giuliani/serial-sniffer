@@ -1,3 +1,6 @@
 [submodule "vendor/Catch2"]
 	path = vendor/Catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "vendor/libnl"]
+	path = vendor/libnl
+	url = https://github.com/thom311/libnl.git

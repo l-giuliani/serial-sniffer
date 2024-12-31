@@ -11,8 +11,8 @@ static ssize_t sniff_store(struct kobject *kobj, struct kobj_attribute *attr, co
 
 
 static struct kobject *kobj_serial_sniffer;
-static struct kobj_attribute serial_sniffer_dv_attr = __ATTR(deviceName, 0664, deviceName_show, deviceName_store);
-static struct kobj_attribute serial_sniffer_active_attr = __ATTR(active, 0664, sniff_show, sniff_store);
+static struct kobj_attribute serial_sniffer_dv_attr = __ATTR(deviceName, 0666, deviceName_show, deviceName_store);
+static struct kobj_attribute serial_sniffer_active_attr = __ATTR(active, 0666, sniff_show, sniff_store);
 static char deviceName[64] = "None";
 static bool sniff = false;
 
