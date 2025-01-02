@@ -3,6 +3,7 @@
 #include <linux/kallsyms.h>
 #include <linux/kobject.h>
 #include <linux/string.h>
+#include "services/user_comm_services.h"
 
 static ssize_t deviceName_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf);
 static ssize_t deviceName_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count);
@@ -11,8 +12,8 @@ static ssize_t sniff_store(struct kobject *kobj, struct kobj_attribute *attr, co
 
 
 static struct kobject *kobj_serial_sniffer;
-static struct kobj_attribute serial_sniffer_dv_attr = __ATTR(deviceName, 0666, deviceName_show, deviceName_store);
-static struct kobj_attribute serial_sniffer_active_attr = __ATTR(active, 0666, sniff_show, sniff_store);
+static struct kobj_attribute serial_sniffer_dv_attr = __ATTR(deviceName, 0664, deviceName_show, deviceName_store);
+static struct kobj_attribute serial_sniffer_active_attr = __ATTR(active, 0664, sniff_show, sniff_store);
 static char deviceName[64] = "None";
 static bool sniff = false;
 
@@ -81,6 +82,8 @@ static int __init serial_bridge_init(void) {
     if(listener_function != NULL) {
         listener_function("serial_listener_callback");
     }
+
+    user_comm_init();
 
     return 0;
 

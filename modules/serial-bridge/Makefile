@@ -1,12 +1,14 @@
 KERNEL_SRC = /lib/modules/$(shell uname -r)/build
 SOURCE := $(shell pwd)
 
-INCLUDE_DIRS := -I./
+
 
 obj-m := serial_bridge.o
+ccflags-y += -I./services
+serial_bridge-objs := serial_bridge_main.o services/user_comm_services.o
 
 all:
-	$(MAKE) -C $(KERNEL_SRC) M=$(SOURCE)
+	$(MAKE) -C $(KERNEL_SRC)  M=$(SOURCE)
 
 #install: modules_install
 
