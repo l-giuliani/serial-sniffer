@@ -7,6 +7,8 @@ extern "C" {
 
 void test();
 
+int initializeSniffer(const char* portName);
+
 #ifdef __cplusplus
 }
 #endif

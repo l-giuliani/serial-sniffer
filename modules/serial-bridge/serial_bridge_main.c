@@ -93,6 +93,7 @@ static void __exit serial_bridge_exit(void) {
     kobject_put(kobj_serial_sniffer);
     sysfs_remove_file(kobj_serial_sniffer, &serial_sniffer_dv_attr.attr);
     sysfs_remove_file(kobj_serial_sniffer, &serial_sniffer_active_attr.attr);
+    user_comm_free();
 }
 
 module_init(serial_bridge_init);

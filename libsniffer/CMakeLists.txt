@@ -16,10 +16,14 @@ foreach(header IN LISTS HEADERS)
     list(APPEND HEADER_DIRECTORIES ${dir})
 endforeach()
 
+list(APPEND HEADER_DIRECTORIES ${CMAKE_SOURCE_DIR}/vendor/libnl/include)
+list(APPEND HEADER_DIRECTORIES ${CMAKE_BINARY_DIR}/vendor/libnl_build/include)
 
 add_library(sniffer SHARED ${SOURCES})
 
 target_include_directories(sniffer PRIVATE ${HEADER_DIRECTORIES})
+
+target_link_libraries(sniffer ${CMAKE_SOURCE_DIR}/bin/libnl-genl-3.so ${CMAKE_SOURCE_DIR}/bin/libnl-3.so)
 
 add_custom_command(TARGET sniffer 
                    POST_BUILD

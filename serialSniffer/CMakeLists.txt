@@ -22,7 +22,10 @@ add_executable(SerialSniffer ${SOURCES})
 
 target_include_directories(SerialSniffer PRIVATE ${HEADER_DIRECTORIES})
 
-target_link_libraries(SerialSniffer ${CMAKE_SOURCE_DIR}/bin/libsniffer.so)
+target_link_libraries(SerialSniffer 
+                ${CMAKE_SOURCE_DIR}/bin/libsniffer.so
+                ${CMAKE_SOURCE_DIR}/bin/libnl-genl-3.so 
+                ${CMAKE_SOURCE_DIR}/bin/libnl-3.so)
 
 add_custom_command(TARGET SerialSniffer 
                    POST_BUILD
