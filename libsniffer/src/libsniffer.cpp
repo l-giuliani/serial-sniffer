@@ -9,5 +9,9 @@ void test() {
 }
 
 int initializeSniffer(const char* portName) {
+    return 0;
+}
 
+int startAsyncSniffing(void(*callback)(uint8_t*, int)) {
+    return 0;
 }

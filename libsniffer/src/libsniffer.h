@@ -8,6 +8,7 @@ extern "C" {
 void test();
 
 int initializeSniffer(const char* portName);
+int startAsyncSniffing(void(*callback)(uint8_t*, int));
 
 #ifdef __cplusplus
 }

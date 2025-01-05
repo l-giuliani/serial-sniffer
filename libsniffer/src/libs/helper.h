@@ -19,8 +19,9 @@
  */
 class KernelCommListener : public KernelCommSubscriber {
 private:
-    std::function<void(uint8_t*, int*)> callback;
+    std::function<void(uint8_t*, int)> callback;
 public:
-    void setCallback(std::function<void(uint8_t*, int*)> callback);
+    KernelCommListener();
+    void setCallback(std::function<void(uint8_t*, int)> callback);
     void onData(const KernelMulticastData& kmd);
 };

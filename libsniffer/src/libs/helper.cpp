@@ -11,12 +11,16 @@
 #include "helper.h"
 #include "netlink_data.h"
 
+KernelCommListener::KernelCommListener() {
+    this->callback = nullptr;
+}
+
 /**
  * @brief Set the callback for data arrived from the kernel
  * 
  * @param callback The callback to be called on data
  */
-void KernelCommListener::setCallback(std::function<void(uint8_t*, int*)> callback) {
+void KernelCommListener::setCallback(std::function<void(uint8_t*, int)> callback) {
     this->callback = callback;
 }
 
@@ -26,9 +30,12 @@ void KernelCommListener::setCallback(std::function<void(uint8_t*, int*)> callbac
  * @param kmd The data arrived from Kernel Netlink
  */
 void KernelCommListener::onData(const KernelMulticastData& kmd) {
+    if(this->callback == nullptr) {
+        return;
+    }
     if(kmd.getCommand() != SNIFF_CMD_SNIFFED) {
         return;
     }
-    kmd.getAttr(SNIFF_ATTR_BUFFER);
-    //todo organize data and send via callback
+    const KernelMulticastData::KernelMulticastEl kme = kmd.getAttr(SNIFF_ATTR_BUFFER);
+    this->callback((uint8_t*)kme.data, kme.len);
 }
