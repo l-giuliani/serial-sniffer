@@ -18,6 +18,7 @@ endforeach()
 
 list(APPEND HEADER_DIRECTORIES ${CMAKE_SOURCE_DIR}/vendor/libnl/include)
 list(APPEND HEADER_DIRECTORIES ${CMAKE_BINARY_DIR}/vendor/libnl_build/include)
+list(APPEND HEADER_DIRECTORIES ${CMAKE_SOURCE_DIR}/modules/serial-bridge/include)
 
 add_library(sniffer SHARED ${SOURCES})
 

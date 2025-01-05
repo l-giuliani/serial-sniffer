@@ -10,12 +10,58 @@
 
 #include "kernelComm.h"
 
+/**
+ * @brief set command in kernel multicast data
+ * 
+ * @param command the command
+ */
+void KernelMulticastData::setCommand(int command) {
+    this->command = command;
+}
+/**
+ * @brief get command
+ * @return The command
+ */
+int KernelMulticastData::getCommand() const {
+    return this->command;
+}
+/**
+ * @brief add attribute in kernel multicast data
+ * @param attr couple data and len relatives to an attribute
+ */
+void KernelMulticastData::addAttr(KernelMulticastData::KernelMulticastEl attr) {
+    this->attrs.push_back(attr);
+}
+
+/**
+ * @brief get attribute from kernel multicast data
+ * @param attr id of attribute requested
+ */
+const KernelMulticastData::KernelMulticastEl& KernelMulticastData::getAttr(int attr) const {
+    return this->attrs.at(attr);
+}
+
+/**
+ * @brief KernelComm contructor
+ */
 KernelComm::KernelComm() {
     this->connected = false;
 }
 
 /**
+ * @brief Notify subscribers
+ * @param kmd The Kernel Multicast Data passed to subscribers
+ */
+void KernelComm::notifySubscribers(const KernelMulticastData& kmd) {
+    std::vector<KernelCommSubscriber*>::iterator it;
+    for(it = this->subscribers.begin(); it != this->subscribers.end(); it++) {
+        (*it)->onData(kmd);
+    }
+}
+
+/**
  * @brief Initialize and connect netlink socket.
+ * @return true if connect operation is Ok
  */
 bool KernelComm::initAndConnect() {
     this->sock = nl_socket_alloc();
@@ -30,18 +76,38 @@ bool KernelComm::initAndConnect() {
     this->connected = true;
 }
 
-static int onReceive(struct nl_msg *msg, void *arg) {
+/**
+ * @brief Callback data from netlink
+ * 
+ * @param msg msg struct netlink
+ * @param arg custom pointer passed to callback
+ * 
+ * @return NL_OK
+ */
+int KernelComm::onReceive(struct nl_msg *msg, void *arg) {
     printf("Messaggio ricevuto!\n");
 
+    KernelComm* self = static_cast<KernelComm*>(arg);
+
     struct nlmsghdr *nlh = nlmsg_hdr(msg);
-    struct genlmsghdr *genl_hdr = (struct genlmsghdr *)nlmsg_data(nlh);
+    struct genlmsghdr *genl_hdr = static_cast<struct genlmsghdr *>(nlmsg_data(nlh));
+
+    KernelMulticastData kmd;
+    kmd.setCommand(genl_hdr->cmd);
 
     // Ottieni l'attributo
     struct nlattr *attrs[256];
     genlmsg_parse(nlh, 0, attrs, 256 - 1, NULL);
-    if (attrs[1]) {
-        char *data = nla_get_string(attrs[1]);
-        printf("Dati ricevuti: %s\n", data);
+    bool endAttr = false;
+    for(int i=1; i<256 && (!endAttr); i++){
+        if (attrs[i]) {
+            KernelMulticastData::KernelMulticastEl kme;
+            kme.data = nla_data(attrs[1]);
+            kme.len = nla_len(attrs[i]);
+            kmd.addAttr(kme);
+        } else {
+            endAttr = true;
+        }
     }
 
     return NL_OK;
@@ -107,12 +173,19 @@ bool KernelComm::removeFromMulticastGroup(const char* family, const char* group)
     return true;
 }
 
-bool KernelComm::registerCallback(int (*on_receive)(struct nl_msg*, void*)) {
+/**
+ * @brief Unregister from multicast group specifying family and group.
+ * 
+ * @param family netlink family name
+ * @param group multicast group name
+ * 
+ * @return false in case of error, true otherwise
+ */
+bool KernelComm::registerCallback() {
     if(!this->connected) {
         return false;
     }
-
-    nl_socket_modify_cb(this->sock, NL_CB_VALID, NL_CB_CUSTOM, onReceive, NULL);
+    nl_socket_modify_cb(this->sock, NL_CB_VALID, NL_CB_CUSTOM, KernelComm::onReceive, this);
 }
 
 void KernelComm::startListening() {

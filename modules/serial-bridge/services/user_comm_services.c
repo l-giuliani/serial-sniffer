@@ -4,6 +4,8 @@
 #include <net/genetlink.h>
 #include <linux/string.h>
 
+#include "../include/netlink_data.h"
+
 #define GENL_FAMILY_NAME "ser_notif_family"
 #define GENL_MULTICAST_GROUP "ser_notif_group"
 
@@ -11,21 +13,6 @@ static struct genl_family sniff_family;
 static const struct genl_multicast_group sniff_mcgroup[] = {
     [0] = { .name = GENL_MULTICAST_GROUP },
 };
-
-enum {
-    SNIFF_CMD_UNSPEC,
-    SNIFF_CMD_SNIFFED,
-    __SNIFF_CMD_MAX,
-};
-#define SNIFF_CMD_MAX (__SNIFF_CMD_MAX - 1)
-
-// Attributi Netlink (può essere esteso per supportare più attributi)
-enum {
-    SNIFF_ATTR_UNSPEC,
-    SNIFF_ATTR_BUFFER,
-    __SNIFF_ATTR_MAX,
-};
-#define SNIFF_ATTR_MAX (__SNIFF_ATTR_MAX - 1)
 
 /*static struct nla_policy sniff_policy[SNIFF_ATTR_MAX + 1] = {
     [SNIFF_ATTR_BUFFER] = { .type = NLA_BINARY },

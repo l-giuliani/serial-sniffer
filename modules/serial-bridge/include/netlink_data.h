@@ -1,0 +1,18 @@
+#ifndef __NETLINK_DATA__
+#define __NETLINK_DATA__
+
+enum {
+    SNIFF_CMD_UNSPEC,
+    SNIFF_CMD_SNIFFED,
+    __SNIFF_CMD_MAX,
+};
+#define SNIFF_CMD_MAX (__SNIFF_CMD_MAX - 1)
+
+enum {
+    SNIFF_ATTR_UNSPEC,
+    SNIFF_ATTR_BUFFER,
+    __SNIFF_ATTR_MAX,
+};
+#define SNIFF_ATTR_MAX (__SNIFF_ATTR_MAX - 1)
+
+#endif
