@@ -67,6 +67,7 @@ private:
     static int onReceive(struct nl_msg *msg, void *arg);
 public:
     KernelComm();
+    void subscribe(KernelCommSubscriber* subscriber);
     bool initAndConnect();
     int registerToMulticastGroup(const char* family, const char* group);
     bool removeFromMulticastGroup(const char* family, const char* group);

@@ -8,9 +8,13 @@
  * @author Lorenzo Giuliani
  */
 
+#ifndef __SNIFFER_HELPER__
+#define __SNIFFER_HELPER__
+
 #include "kernelComm.h"
 
 #include <functional>
+#include <future>
 #include <stdint.h>
 
 /**
@@ -25,3 +29,25 @@ public:
     void setCallback(std::function<void(uint8_t*, int)> callback);
     void onData(const KernelMulticastData& kmd);
 };
+
+/**
+ * @class AsyncSniffing
+ * @brief Async Sniffing reader
+*/
+class AsyncSniffer {
+private:
+    bool active;
+    bool initialized;
+    std::future<void> future;
+    KernelCommListener kcl;
+    KernelComm kc;
+
+    void executeAsync();
+public:
+    AsyncSniffer();
+    void init(std::function<void(uint8_t*, int)> callback);
+    void start();
+    void stop();
+};
+
+#endif

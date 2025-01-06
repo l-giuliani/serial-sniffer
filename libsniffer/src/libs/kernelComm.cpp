@@ -60,6 +60,14 @@ void KernelComm::notifySubscribers(const KernelMulticastData& kmd) {
 }
 
 /**
+ * @brief Subscribe in order to get data from Netlink
+ * @param subscriber The subscriber
+*/
+void KernelComm::subscribe(KernelCommSubscriber* subscriber) {
+    this->subscribers.push_back(subscriber);
+}
+
+/**
  * @brief Initialize and connect netlink socket.
  * @return true if connect operation is Ok
  */
@@ -74,6 +82,7 @@ bool KernelComm::initAndConnect() {
         return false;
     }
     this->connected = true;
+    return true;
 }
 
 /**
@@ -85,8 +94,6 @@ bool KernelComm::initAndConnect() {
  * @return NL_OK
  */
 int KernelComm::onReceive(struct nl_msg *msg, void *arg) {
-    printf("Messaggio ricevuto!\n");
-
     KernelComm* self = static_cast<KernelComm*>(arg);
 
     struct nlmsghdr *nlh = nlmsg_hdr(msg);
@@ -185,7 +192,8 @@ bool KernelComm::registerCallback() {
     if(!this->connected) {
         return false;
     }
-    nl_socket_modify_cb(this->sock, NL_CB_VALID, NL_CB_CUSTOM, KernelComm::onReceive, this);
+    int ret = nl_socket_modify_cb(this->sock, NL_CB_VALID, NL_CB_CUSTOM, KernelComm::onReceive, this);
+    return (ret == 0);
 }
 
 void KernelComm::startListening() {
@@ -196,6 +204,9 @@ void KernelComm::startListening() {
     
 }
 
+/**
+ * @brief receiving from netlink
+*/
 void KernelComm::recv() {
     nl_recvmsgs_default(this->sock);
 }

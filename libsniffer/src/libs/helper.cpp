@@ -39,3 +39,59 @@ void KernelCommListener::onData(const KernelMulticastData& kmd) {
     const KernelMulticastData::KernelMulticastEl kme = kmd.getAttr(SNIFF_ATTR_BUFFER);
     this->callback((uint8_t*)kme.data, kme.len);
 }
+
+/**
+ * @brief AsyncSniffing constructor
+*/
+AsyncSniffer::AsyncSniffer() {
+    this->active = false;
+    this->initialized = false;
+}
+
+/**
+ * @brief initialize KernelComm in order to riceive data via Netlink
+ * @param callback the callback called when data arrive from kernel
+*/
+void AsyncSniffer::init(std::function<void(uint8_t*, int)> callback) {
+    kcl.setCallback(callback);
+    
+    kc.subscribe(&kcl);
+    kc.registerToMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
+    kc.registerCallback();
+    
+    this->initialized = true;
+}
+
+/**
+ * @brief async netlink read 
+*/
+void AsyncSniffer::executeAsync() {
+    while(this->active) {
+        kc.recv();
+    }
+}
+
+/**
+ * @brief start receiving data from Kernel
+*/
+void AsyncSniffer::start() {
+    if(!this->initialized) {
+        return;
+    }
+    if(this->active) {
+        return;
+    }
+    this->active = true;
+    this->future = std::async(&AsyncSniffer::executeAsync, this);
+}
+
+/**
+ * @brief stop receiving data from Kernel
+*/
+void AsyncSniffer::stop() {
+    if(!this->initialized) {
+        return;
+    }
+    this->active = false;
+    this->future.get();
+}

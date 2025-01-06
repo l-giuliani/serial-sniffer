@@ -1,6 +1,9 @@
 #ifndef __NETLINK_DATA__
 #define __NETLINK_DATA__
 
+#define GENL_FAMILY_NAME "ser_notif_family"
+#define GENL_MULTICAST_GROUP "ser_notif_group"
+
 enum {
     SNIFF_CMD_UNSPEC,
     SNIFF_CMD_SNIFFED,

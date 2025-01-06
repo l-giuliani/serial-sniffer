@@ -6,9 +6,6 @@
 
 #include "../include/netlink_data.h"
 
-#define GENL_FAMILY_NAME "ser_notif_family"
-#define GENL_MULTICAST_GROUP "ser_notif_group"
-
 static struct genl_family sniff_family;
 static const struct genl_multicast_group sniff_mcgroup[] = {
     [0] = { .name = GENL_MULTICAST_GROUP },
