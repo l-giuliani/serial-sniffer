@@ -51,15 +51,23 @@ AsyncSniffer::AsyncSniffer() {
 /**
  * @brief initialize KernelComm in order to riceive data via Netlink
  * @param callback the callback called when data arrive from kernel
+ * @return true if initialized correctly, false otherwise
 */
-void AsyncSniffer::init(std::function<void(uint8_t*, int)> callback) {
+bool AsyncSniffer::init(std::function<void(uint8_t*, int)> callback) {
     kcl.setCallback(callback);
     
     kc.subscribe(&kcl);
-    kc.registerToMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
-    kc.registerCallback();
+    int gid = kc.registerToMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
+    if(gid == -1) {
+        return false;
+    }
+    bool rres = kc.registerCallback();
+    if(!rres) {
+        return false;
+    }
     
     this->initialized = true;
+    return true;
 }
 
 /**

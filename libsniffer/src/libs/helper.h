@@ -45,7 +45,7 @@ private:
     void executeAsync();
 public:
     AsyncSniffer();
-    void init(std::function<void(uint8_t*, int)> callback);
+    bool init(std::function<void(uint8_t*, int)> callback);
     void start();
     void stop();
 };
