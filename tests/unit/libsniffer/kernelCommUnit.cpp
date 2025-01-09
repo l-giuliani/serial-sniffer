@@ -1,9 +1,23 @@
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("Subscribe Init Condition", "[KernelComm]") {
-    REQUIRE((1==1)); // Verifica che stop sia stato chiamato
-}
+#include "kernelComm.h"
+#include <vector>
 
-TEST_CASE("Subscribe Final Condition", "[KernelComm]") {
-    REQUIRE((1==1));
+class TestSubscriber : public KernelCommSubscriber {
+private:
+public:
+    void onData(const KernelMulticastData& kmd) {}
+};
+
+TEST_CASE("Subscribe", "[KernelComm]") {
+    KernelComm kc;
+
+    std::vector<KernelCommSubscriber*>& subscribers = kc.getSubscribers();
+    REQUIRE(subscribers.size() == 0);
+    
+    TestSubscriber ts;
+    kc.subscribe(&ts);
+
+    REQUIRE(subscribers.size() == 1);
+    REQUIRE(subscribers.at(0) == &ts);
 }

@@ -1,4 +1,4 @@
-MODULE_DEST_DIR=../bin
+MODULE_DEST_DIR=../LGSniffer/modules
 MODULES = interceptor serial-bridge
 
 buildmodules:

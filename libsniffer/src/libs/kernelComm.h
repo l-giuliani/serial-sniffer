@@ -68,12 +68,15 @@ private:
 public:
     KernelComm();
     void subscribe(KernelCommSubscriber* subscriber);
+    std::vector<KernelCommSubscriber*>& getSubscribers();
     bool initAndConnect();
     int registerToMulticastGroup(const char* family, const char* group);
     bool removeFromMulticastGroup(const char* family, const char* group);
     bool registerCallback();
     void startListening();
     void recv();
+    bool getConnected();
+    bool disconnect();
     ~KernelComm();
 };
 

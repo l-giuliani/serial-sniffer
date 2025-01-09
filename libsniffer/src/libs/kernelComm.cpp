@@ -45,6 +45,7 @@ const KernelMulticastData::KernelMulticastEl& KernelMulticastData::getAttr(int a
  * @brief KernelComm contructor
  */
 KernelComm::KernelComm() {
+    this->sock = nullptr;
     this->connected = false;
 }
 
@@ -68,6 +69,14 @@ void KernelComm::subscribe(KernelCommSubscriber* subscriber) {
 }
 
 /**
+ * @brief Subscribe in order to get data from Netlink get
+ * @return The subscribers
+*/
+std::vector<KernelCommSubscriber*>& KernelComm::getSubscribers() {
+    return this->subscribers;
+}
+
+/**
  * @brief Initialize and connect netlink socket.
  * @return true if connect operation is Ok
  */
@@ -79,6 +88,7 @@ bool KernelComm::initAndConnect() {
 
     if (genl_connect(this->sock)) {
         nl_socket_free(this->sock);
+        this->sock = nullptr;
         return false;
     }
     this->connected = true;
@@ -211,6 +221,27 @@ void KernelComm::recv() {
     nl_recvmsgs_default(this->sock);
 }
 
+/**
+ * @brief get connection status
+ * @return connection status
+*/
+bool KernelComm::getConnected() {
+    return this->connected;
+}
+
+/**
+ * @brief Disconnect netlink
+ * @return true if disconnect op is OK, false otherwise
+*/
+bool KernelComm::disconnect() {
+    if(this->sock != nullptr) {
+        nl_socket_free(this->sock);
+        this->sock = nullptr;
+        this->connected = false;
+    }
+    return true;
+}
+
 KernelComm::~KernelComm() {
-    nl_socket_free(this->sock);
+    this->disconnect();
 }

@@ -1,5 +1,4 @@
-mkdir bin
-rm  bin/* bin/*/*
+rm  LGSniffer/bin/* LGSniffer/bin/*/* LGSniffer/lib/* LGSniffer/modules/*
 mkdir tmpfolder
 mv build/vendor tmpfolder/
 rm -rf build

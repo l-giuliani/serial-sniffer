@@ -24,8 +24,9 @@ add_library(sniffer SHARED ${SOURCES})
 
 target_include_directories(sniffer PRIVATE ${HEADER_DIRECTORIES})
 
-target_link_libraries(sniffer ${CMAKE_SOURCE_DIR}/bin/libnl-genl-3.so ${CMAKE_SOURCE_DIR}/bin/libnl-3.so)
+set(LIBDESTDIR ${CMAKE_SOURCE_DIR}/LGSniffer/lib)
+target_link_libraries(sniffer ${LIBDESTDIR}/libnl-genl-3.so ${LIBDESTDIR}/libnl-3.so)
 
 add_custom_command(TARGET sniffer 
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sniffer> ${CMAKE_SOURCE_DIR}/bin)
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sniffer> ${LIBDESTDIR})

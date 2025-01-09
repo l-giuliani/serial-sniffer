@@ -1,2 +1,4 @@
-bin/*
 build/*
+LGSniffer/bin/*
+LGSniffer/lib/*
+LGSniffer/modules/*
