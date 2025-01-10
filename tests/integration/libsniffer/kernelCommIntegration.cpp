@@ -2,31 +2,9 @@
 #include <cstdlib>
 #include <string>
 
+#include "guards.h"
 #include "kernelComm.h"
 #include "netlink_data.h"
-
-class KernelModuleGuard {
-public:
-    KernelModuleGuard(const std::string& loadScript, const std::string& unloadScript)
-        : unloadScript_(unloadScript), loaded_(false) {
-        int ret = std::system(loadScript.c_str());
-        if (ret == 0) {
-            loaded_ = true;
-        } else {
-            throw std::runtime_error("Failed to load kernel module");
-        }
-    }
-
-    ~KernelModuleGuard() {
-        if (loaded_) {
-            std::system(unloadScript_.c_str());
-        }
-    }
-
-private:
-    std::string unloadScript_;
-    bool loaded_;
-};
 
 TEST_CASE("KernelComm") {
 
@@ -58,6 +36,17 @@ TEST_CASE("KernelComm") {
         REQUIRE(res >= 0);
         bool res2 = kc.removeFromMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
         REQUIRE(res2 == true);
+
+        kc.disconnect();
+    }
+
+    SECTION("Register Callback") {
+        KernelComm kc;
+
+        kc.initAndConnect();
+
+        bool res = kc.registerCallback();
+        REQUIRE(res == true);
 
         kc.disconnect();
     }

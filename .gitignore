@@ -2,3 +2,5 @@ build/*
 LGSniffer/bin/*
 LGSniffer/lib/*
 LGSniffer/modules/*
+.cproject
+.vscode/*
