@@ -3,6 +3,7 @@
 #include <string>
 
 #include "kernelComm.h"
+#include "netlink_data.h"
 
 class KernelModuleGuard {
 public:
@@ -41,6 +42,24 @@ TEST_CASE("KernelComm") {
         res = kc.disconnect();
         REQUIRE(res == true);
         REQUIRE(kc.getConnected() == false);
+    }
+
+    SECTION("Register To Multicast Group") {
+        KernelComm kc;
+
+        kc.initAndConnect();
+
+        int res = kc.registerToMulticastGroup("errorFamily","errorGroup");
+        INFO("res = " << res);
+        REQUIRE(res < 0);
+        res = kc.registerToMulticastGroup(GENL_FAMILY_NAME,"errorGroup");
+        REQUIRE(res < 0);
+        res = kc.registerToMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
+        REQUIRE(res >= 0);
+        bool res2 = kc.removeFromMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
+        REQUIRE(res2 == true);
+
+        kc.disconnect();
     }
 
 }

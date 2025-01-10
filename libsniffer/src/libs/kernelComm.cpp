@@ -86,7 +86,7 @@ bool KernelComm::initAndConnect() {
         return false;
     }
 
-    if (genl_connect(this->sock)) {
+    if (genl_connect(this->sock) < 0) {
         nl_socket_free(this->sock);
         this->sock = nullptr;
         return false;
@@ -144,17 +144,18 @@ int KernelComm::registerToMulticastGroup(const char* family, const char* group) 
     }
     int familyId = genl_ctrl_resolve(sock, family);
     if (familyId < 0) {
-        return -1;
+        return familyId;
     }
 
     int groupId = genl_ctrl_resolve_grp(sock, family, group);
     if (groupId < 0) {
-        return -1;
+        return -3;
     }
     int ret = nl_socket_add_membership(sock, groupId);
     if (ret < 0) {
-        nl_socket_free(sock);
-        return -1;
+        //nl_socket_free(sock);
+        //sock = nullptr;
+        return -4;
     }
 
     return groupId;

@@ -7,3 +7,4 @@ mv tmpfolder/vendor build/vendor
 rm -rf tmpfolder
 cd build
 $CMAKE ../
+make

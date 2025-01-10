@@ -81,7 +81,6 @@ int send_multicast_message(const char* buffer, int buffer_len) {
 int user_comm_init(void) {
     int res;
 
-    // Definizione della famiglia Generic Netlink
     sniff_family = (struct genl_family) {
         .name = GENL_FAMILY_NAME,
         .version = 1,
@@ -92,8 +91,6 @@ int user_comm_init(void) {
         .mcgrps = sniff_mcgroup,
         .n_mcgrps = ARRAY_SIZE(sniff_mcgroup)
     };
-
-    // Registrazione della famiglia
     res = genl_register_family(&sniff_family);
     if (res) {
         pr_err("Generic Netlink: error registering family: %d\n", res);

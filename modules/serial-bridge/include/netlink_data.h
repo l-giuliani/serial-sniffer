@@ -1,8 +1,8 @@
 #ifndef __NETLINK_DATA__
 #define __NETLINK_DATA__
 
-#define GENL_FAMILY_NAME "ser_notif_family"
-#define GENL_MULTICAST_GROUP "ser_notif_group"
+#define GENL_FAMILY_NAME "sern_family"
+#define GENL_MULTICAST_GROUP "sern_group"
 
 enum {
     SNIFF_CMD_UNSPEC,

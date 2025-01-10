@@ -73,16 +73,16 @@ int initSysfsInterface(void) {
 }
 
 static int __init serial_bridge_init(void) {
-    int res = initSysfsInterface();
-    if (res != 0) {
-        return res;
-    }
+    // int res = initSysfsInterface();
+    // if (res != 0) {
+    //     return res;
+    // }
 
     listener_function = (void (*)(char*))kallsyms_lookup_name("set_listener_function");
     if(listener_function != NULL) {
         listener_function("serial_listener_callback");
     }
-
+    pr_info("sto per inizializzare netlink\n");
     user_comm_init();
 
     return 0;
@@ -90,9 +90,9 @@ static int __init serial_bridge_init(void) {
 }
 
 static void __exit serial_bridge_exit(void) {
-    kobject_put(kobj_serial_sniffer);
-    sysfs_remove_file(kobj_serial_sniffer, &serial_sniffer_dv_attr.attr);
-    sysfs_remove_file(kobj_serial_sniffer, &serial_sniffer_active_attr.attr);
+    //kobject_put(kobj_serial_sniffer);
+    //sysfs_remove_file(kobj_serial_sniffer, &serial_sniffer_dv_attr.attr);
+    //sysfs_remove_file(kobj_serial_sniffer, &serial_sniffer_active_attr.attr);
     user_comm_free();
 }
 
