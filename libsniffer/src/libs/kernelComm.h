@@ -12,6 +12,7 @@
 #define __KERNEL_COMM__
 
 #include <vector>
+#include <cstdint>
 
 #include "netlink/netlink.h"
 #include "netlink/genl/genl.h"
@@ -63,6 +64,7 @@ private:
     bool connected;
     std::vector<KernelCommSubscriber*> subscribers;
 
+    int resolveFamily(const char* family);
     void notifySubscribers(const KernelMulticastData& kmd);
     static int onReceive(struct nl_msg *msg, void *arg);
 public:
@@ -75,6 +77,7 @@ public:
     bool registerCallback();
     void startListening();
     void recv();
+    int sendData(const char* family, int command, uint8_t* data, int len);
     bool getConnected();
     bool disconnect();
     ~KernelComm();

@@ -10,6 +10,8 @@
 
 #include "kernelComm.h"
 
+#include "netlink_data.h"
+
 /**
  * @brief set command in kernel multicast data
  * 
@@ -47,6 +49,15 @@ const KernelMulticastData::KernelMulticastEl& KernelMulticastData::getAttr(int a
 KernelComm::KernelComm() {
     this->sock = nullptr;
     this->connected = false;
+}
+
+/**
+ * @brief Resolve Netlink family
+ * @param family The family name
+ * @return The family id or error code
+ */
+int KernelComm::resolveFamily(const char* family) {
+    return genl_ctrl_resolve(sock, family);
 }
 
 /**
@@ -142,7 +153,7 @@ int KernelComm::registerToMulticastGroup(const char* family, const char* group) 
     if(!this->connected) {
         return -1;
     }
-    int familyId = genl_ctrl_resolve(sock, family);
+    int familyId = resolveFamily(family);
     if (familyId < 0) {
         return familyId;
     }
@@ -173,7 +184,7 @@ bool KernelComm::removeFromMulticastGroup(const char* family, const char* group)
     if(!this->connected) {
         return false;
     }
-    int familyId = genl_ctrl_resolve(sock, family);
+    int familyId = resolveFamily(family);
     if (familyId < 0) {
         return false;
     }
@@ -220,6 +231,31 @@ void KernelComm::startListening() {
 */
 void KernelComm::recv() {
     nl_recvmsgs_default(this->sock);
+}
+
+int KernelComm::sendData(const char* family, int command, uint8_t* data, int len) {
+    struct nl_msg *msg = NULL;
+    int res;
+
+    int familyId = resolveFamily(family);
+    if (familyId < 0) {
+        return -1;
+    }
+
+    msg = nlmsg_alloc();
+    if (!msg) {
+        return -2;
+    }
+
+    if (!genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ, familyId, 0, 0, SNIFF_CMD_SEND_TEST, 1)) {
+        nlmsg_free(msg);
+        return -3;
+    }
+
+    res = nl_send_auto(sock, msg);
+    nlmsg_free(msg);
+
+    return res;
 }
 
 /**

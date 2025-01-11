@@ -11,6 +11,8 @@ static const struct genl_multicast_group sniff_mcgroup[] = {
     [0] = { .name = GENL_MULTICAST_GROUP },
 };
 
+int send_multicast_message(const char* buffer, int buffer_len);
+
 /*static struct nla_policy sniff_policy[SNIFF_ATTR_MAX + 1] = {
     [SNIFF_ATTR_BUFFER] = { .type = NLA_BINARY },
 };*/
@@ -28,6 +30,13 @@ static int sniff_cmd_handler(struct sk_buff *skb, struct genl_info *info) {
     return 0;
 }
 
+static sniff_cmd_test_handler (struct sk_buff *skb, struct genl_info *info) {
+    char buffer[] = "CmD_TesT";
+    int len = strlen(buffer);
+    int send_multicast_message(buffer, len);
+    return 0;
+}
+
 static const struct genl_ops sniff_ops[] = {
     {
         .cmd = SNIFF_CMD_SNIFFED,
@@ -35,9 +44,13 @@ static const struct genl_ops sniff_ops[] = {
         //.policy = sniff_policy,
         .doit = sniff_cmd_handler,
     },
+    {
+        .cmd = SNIFF_CMD_SEND_TEST,
+        .flags = 0,
+        .doit = sniff_cmd_test_handler
+    }
 };
 
-// Funzione per inviare messaggi multicast
 int send_multicast_message(const char* buffer, int buffer_len) {
     struct sk_buff *skb;
     void *msg_header;
@@ -48,7 +61,7 @@ int send_multicast_message(const char* buffer, int buffer_len) {
     }
 
     skb = genlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
-    if (!skb) {
+    if (!skb) {.
         pr_err("Generic Netlink: error allocating memory\n");
         return -ENOMEM;
     }

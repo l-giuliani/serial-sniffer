@@ -8,7 +8,7 @@ TEST_CASE("Helpers") {
 
     KernelModuleGuard guard("./scripts/loadSerialBridge.sh", "./scripts/unloadSerialBridge.sh");
 
-    SECTION("Init and Connect and Disconnect") {
+    SECTION("Receive Data from Netlink Group") {
         
     }
 

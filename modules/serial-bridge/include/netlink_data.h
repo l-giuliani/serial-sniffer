@@ -7,6 +7,7 @@
 enum {
     SNIFF_CMD_UNSPEC,
     SNIFF_CMD_SNIFFED,
+    SNIFF_CMD_SEND_TEST,
     __SNIFF_CMD_MAX,
 };
 #define SNIFF_CMD_MAX (__SNIFF_CMD_MAX - 1)
