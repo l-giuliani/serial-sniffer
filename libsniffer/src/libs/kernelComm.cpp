@@ -123,7 +123,6 @@ int KernelComm::onReceive(struct nl_msg *msg, void *arg) {
     KernelMulticastData kmd;
     kmd.setCommand(genl_hdr->cmd);
 
-    // Ottieni l'attributo
     struct nlattr *attrs[256];
     genlmsg_parse(nlh, 0, attrs, 256 - 1, NULL);
     bool endAttr = false;
@@ -137,6 +136,7 @@ int KernelComm::onReceive(struct nl_msg *msg, void *arg) {
             endAttr = true;
         }
     }
+    self->notifySubscribers(kmd);
 
     return NL_OK;
 }
