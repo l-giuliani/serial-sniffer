@@ -40,6 +40,7 @@ public:
     int getCommand() const;
     void addAttr(KernelMulticastData::KernelMulticastEl attr);
     const KernelMulticastData::KernelMulticastEl& getAttr(int attr) const;
+    void printAttrs() const;
 private:
     int command;
     std::vector<KernelMulticastData::KernelMulticastEl> attrs;
@@ -72,11 +73,13 @@ public:
     void subscribe(KernelCommSubscriber* subscriber);
     std::vector<KernelCommSubscriber*>& getSubscribers();
     bool initAndConnect();
+    void disableSeqCheck();
+    bool setSocketTimeout(int timeout_ms);
     int registerToMulticastGroup(const char* family, const char* group);
     bool removeFromMulticastGroup(const char* family, const char* group);
     bool registerCallback();
     void startListening();
-    void recv();
+    bool recv();
     int sendData(const char* family, int command, uint8_t* data, int len);
     bool getConnected();
     bool disconnect();

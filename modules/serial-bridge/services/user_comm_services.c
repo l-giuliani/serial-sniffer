@@ -30,10 +30,13 @@ static int sniff_cmd_handler(struct sk_buff *skb, struct genl_info *info) {
     return 0;
 }
 
-static sniff_cmd_test_handler (struct sk_buff *skb, struct genl_info *info) {
+static int sniff_cmd_test_handler (struct sk_buff *skb, struct genl_info *info) {
     char buffer[] = "CmD_TesT";
-    int len = strlen(buffer);
-    int send_multicast_message(buffer, len);
+    int len;
+
+    len = strlen(buffer);
+    send_multicast_message(buffer, len);
+
     return 0;
 }
 
@@ -61,7 +64,7 @@ int send_multicast_message(const char* buffer, int buffer_len) {
     }
 
     skb = genlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
-    if (!skb) {.
+    if (!skb) {
         pr_err("Generic Netlink: error allocating memory\n");
         return -ENOMEM;
     }
@@ -81,7 +84,6 @@ int send_multicast_message(const char* buffer, int buffer_len) {
     }
 
     genlmsg_end(skb, msg_header);
-
     res = genlmsg_multicast(&sniff_family, skb, 0, 0, GFP_KERNEL);
     if (res < 0) {
         pr_err("Generic Netlink: errore nell'invio del messaggio multicast: %d\n", res);

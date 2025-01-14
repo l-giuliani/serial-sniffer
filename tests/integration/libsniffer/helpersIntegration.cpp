@@ -3,6 +3,9 @@
 #include <future>
 #include <functional>
 #include <cstdint> 
+#include <chrono>
+#include <thread>
+#include <iostream>
 
 #include "guards.h"
 #include "kernelComm.h"
@@ -35,14 +38,25 @@ TEST_CASE("Helpers") {
         bool res = as.init(callback);
         REQUIRE(res == true);
         as.start();
-
-        kc.initAndConnect();
-        res = kc.registerToMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
+        
+        res = kc.initAndConnect();
         REQUIRE(res == true);
-
+        int rs = kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_SEND_TEST, NULL, 0);
+        REQUIRE(rs >= 0);
         kc.disconnect();
 
         CallbackData cd = cbFut.get();
+
+        INFO("len = " << cd.len);
+        INFO("buffer = " << cd.buffer);
+        REQUIRE(cd.len > 0);
+        REQUIRE(cd.buffer != NULL);
+        std::string data((char*)cd.buffer, cd.len);
+        INFO("data = " << data);
+        REQUIRE(data.compare("CmD_TesT") == 0);
+
+        as.stop();
+        as.uninit();
     }
 
 }

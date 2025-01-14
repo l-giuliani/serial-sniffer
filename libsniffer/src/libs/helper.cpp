@@ -11,6 +11,10 @@
 #include "helper.h"
 #include "netlink_data.h"
 
+#include <iostream>
+#include <thread>
+#include <chrono>
+
 KernelCommListener::KernelCommListener() {
     this->callback = nullptr;
 }
@@ -36,7 +40,7 @@ void KernelCommListener::onData(const KernelMulticastData& kmd) {
     if(kmd.getCommand() != SNIFF_CMD_SNIFFED) {
         return;
     }
-    const KernelMulticastData::KernelMulticastEl kme = kmd.getAttr(SNIFF_ATTR_BUFFER);
+    const KernelMulticastData::KernelMulticastEl& kme = kmd.getAttr(SNIFF_ATTR_BUFFER-1);
     this->callback((uint8_t*)kme.data, kme.len);
 }
 
@@ -54,15 +58,26 @@ AsyncSniffer::AsyncSniffer() {
  * @return true if initialized correctly, false otherwise
 */
 bool AsyncSniffer::init(std::function<void(uint8_t*, int)> callback) {
+    if(this->initialized) {
+        return true;
+    }
     kcl.setCallback(callback);
-    
     kc.subscribe(&kcl);
+    bool res = kc.initAndConnect();
+    if(!res) {
+        return false;
+    }
+    kc.disableSeqCheck();
+    res = kc.setSocketTimeout(1000);
+    if(!res) {
+        return false;
+    }
     int gid = kc.registerToMulticastGroup(GENL_FAMILY_NAME, GENL_MULTICAST_GROUP);
     if(gid == -1) {
         return false;
     }
-    bool rres = kc.registerCallback();
-    if(!rres) {
+    res = kc.registerCallback();
+    if(!res) {
         return false;
     }
     
@@ -74,8 +89,12 @@ bool AsyncSniffer::init(std::function<void(uint8_t*, int)> callback) {
  * @brief async netlink read 
 */
 void AsyncSniffer::executeAsync() {
+    bool res;
     while(this->active) {
-        kc.recv();
+        res = kc.recv();
+        if(!res) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     }
 }
 
@@ -100,6 +119,18 @@ void AsyncSniffer::stop() {
     if(!this->initialized) {
         return;
     }
+    if(!this->active) {
+        return;
+    }
     this->active = false;
     this->future.get();
+}
+
+/**
+ * @brief uninitialize AsyncSniffer
+*/
+void AsyncSniffer::uninit() {
+    this->stop();
+    kc.disconnect();
+    this->initialized = false;
 }

@@ -48,6 +48,7 @@ public:
     bool init(std::function<void(uint8_t*, int)> callback);
     void start();
     void stop();
+    void uninit();
 };
 
 #endif

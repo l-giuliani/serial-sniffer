@@ -22,3 +22,19 @@ target_include_directories(snifferTests PRIVATE ${HEADER_DIRECTORIES})
 add_custom_command(TARGET snifferTests 
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:snifferTests> ${CMAKE_SOURCE_DIR}/LGSniffer/bin)
+
+#Helpers
+
+# list(APPEND HELPER_SOURCES integration/libsniffer/helpers/libsnifferTestHelper.cpp)      
+# add_executable(libsnifferTestHelper ${HELPER_SOURCES})
+
+# target_link_libraries(libsnifferTestHelper
+#                     ${LIBDESTDIR}/libsniffer.so
+#                     ${LIBDESTDIR}/libnl-genl-3.so 
+#                     ${LIBDESTDIR}/libnl-3.so)     
+                    
+# target_include_directories(libsnifferTestHelper PRIVATE ${HEADER_DIRECTORIES})
+
+# add_custom_command(TARGET libsnifferTestHelper 
+#                    POST_BUILD
+#                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:libsnifferTestHelper> ${CMAKE_SOURCE_DIR}/LGSniffer/test)

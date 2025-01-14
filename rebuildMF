@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm  LGSniffer/bin/* LGSniffer/bin/*/* LGSniffer/lib/* LGSniffer/modules/*
+rm  LGSniffer/bin/* LGSniffer/bin/*/* LGSniffer/lib/* LGSniffer/modules/* LGSniffer/test/*
 mkdir tmpfolder
 mv build/vendor tmpfolder/
 rm -rf build

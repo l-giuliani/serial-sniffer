@@ -51,4 +51,21 @@ TEST_CASE("KernelComm") {
         kc.disconnect();
     }
 
+    SECTION("Receive No Data") {
+        KernelComm kc;
+
+        kc.initAndConnect();
+
+        bool res = kc.registerCallback();
+        REQUIRE(res == true);
+
+        kc.disableSeqCheck();
+        res = kc.setSocketTimeout(1000);
+        REQUIRE(res == true);
+        res = kc.recv();
+        REQUIRE(res == false);
+
+        kc.disconnect();
+    }
+
 }

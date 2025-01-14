@@ -11,6 +11,9 @@
 #include "kernelComm.h"
 
 #include "netlink_data.h"
+#include <iostream>
+#include <string>
+#include <time.h>
 
 /**
  * @brief set command in kernel multicast data
@@ -41,6 +44,17 @@ void KernelMulticastData::addAttr(KernelMulticastData::KernelMulticastEl attr) {
  */
 const KernelMulticastData::KernelMulticastEl& KernelMulticastData::getAttr(int attr) const {
     return this->attrs.at(attr);
+}
+
+void KernelMulticastData::printAttrs() const {
+    for(const KernelMulticastData::KernelMulticastEl& el : this->attrs) {
+        if(el.data) {
+            std::cout << "len: " << el.len << "\n" << std::fflush;
+            std::cout << "attr: " << el.data << "\n" << std::fflush;
+        } else {
+            std::cout << "nulla da fare\n" << std::fflush;
+        }
+    }
 }
 
 /**
@@ -107,6 +121,32 @@ bool KernelComm::initAndConnect() {
 }
 
 /**
+ * @brief Netlink Socket timeout
+ * @param timeout_ms The timeout in millisecond
+ * @return true on success, false otherwise
+*/
+bool KernelComm::setSocketTimeout(int timeout_ms) {
+    struct timeval tv;
+    tv.tv_sec = timeout_ms / 1000;
+    tv.tv_usec = (timeout_ms % 1000) * 1000;
+    int fd = nl_socket_get_fd(sock);
+
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief disable Seq Check in Netlink communication
+ * 
+ * This should be called for broadcast comm
+*/
+void KernelComm::disableSeqCheck() {
+    nl_socket_disable_seq_check(this->sock);
+}
+
+/**
  * @brief Callback data from netlink
  * 
  * @param msg msg struct netlink
@@ -116,7 +156,6 @@ bool KernelComm::initAndConnect() {
  */
 int KernelComm::onReceive(struct nl_msg *msg, void *arg) {
     KernelComm* self = static_cast<KernelComm*>(arg);
-
     struct nlmsghdr *nlh = nlmsg_hdr(msg);
     struct genlmsghdr *genl_hdr = static_cast<struct genlmsghdr *>(nlmsg_data(nlh));
 
@@ -129,7 +168,7 @@ int KernelComm::onReceive(struct nl_msg *msg, void *arg) {
     for(int i=1; i<256 && (!endAttr); i++){
         if (attrs[i]) {
             KernelMulticastData::KernelMulticastEl kme;
-            kme.data = nla_data(attrs[1]);
+            kme.data = nla_data(attrs[i]);
             kme.len = nla_len(attrs[i]);
             kmd.addAttr(kme);
         } else {
@@ -215,6 +254,8 @@ bool KernelComm::registerCallback() {
         return false;
     }
     int ret = nl_socket_modify_cb(this->sock, NL_CB_VALID, NL_CB_CUSTOM, KernelComm::onReceive, this);
+    //int ret = nl_socket_modify_cb(this->sock, NL_CB_VALID, NL_CB_CUSTOM, onReceiveTest, NULL);
+    
     return (ret == 0);
 }
 
@@ -229,10 +270,20 @@ void KernelComm::startListening() {
 /**
  * @brief receiving from netlink
 */
-void KernelComm::recv() {
-    nl_recvmsgs_default(this->sock);
+bool KernelComm::recv() {
+    int res = nl_recvmsgs_default(this->sock);
+    return (res == 0);
 }
 
+/**
+ * @brief Send data via Netlink
+ * @param family The netlink family
+ * @param command   The netlink command 
+ * @param data  buffer that contains data
+ * @param len   data len
+ * 
+ * @return number of bytes sent or negative error code
+*/
 int KernelComm::sendData(const char* family, int command, uint8_t* data, int len) {
     struct nl_msg *msg = NULL;
     int res;
@@ -247,7 +298,7 @@ int KernelComm::sendData(const char* family, int command, uint8_t* data, int len
         return -2;
     }
 
-    if (!genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ, familyId, 0, 0, SNIFF_CMD_SEND_TEST, 1)) {
+    if (!genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ, familyId, 0, 0, command, 1)) {
         nlmsg_free(msg);
         return -3;
     }
