@@ -1,3 +1,13 @@
+/**
+ * @file c_timer.cpp
+ * @brief Custom Timer
+ *
+ * This file contains the implementation of classes used for custom Timer
+ * The timer can be stopped or refreshed before a custom action
+ *
+ * @author Lorenzo Giuliani
+ */
+
 #include "c_timer.h"
 
 #include <chrono>
@@ -8,6 +18,9 @@ CustomTimer::CustomTimer(CustomAction& customAction, int timeout_ms) : customAct
     this->execute = false;
 }
 
+/**
+ * @brief The function for time check
+*/
 void CustomTimer::timerFun() {
     while(true) {
         {
@@ -25,6 +38,9 @@ void CustomTimer::timerFun() {
     }
 }
 
+/**
+ * @brief The start function
+*/
 void CustomTimer::start() {
     std::lock_guard<std::mutex> lock(this->mx);
     if(this->execute) {
@@ -35,6 +51,9 @@ void CustomTimer::start() {
     this->fut = std::async(&CustomTimer::timerFun, this);
 }
 
+/**
+ * @brief The stop function
+*/
 void CustomTimer::stop() {
     {
         std::lock_guard<std::mutex> lock(this->mx);
@@ -46,6 +65,9 @@ void CustomTimer::stop() {
     this->fut.get();
 }
 
+/**
+ * @brief The refresh action
+*/
 void CustomTimer::refresh() {
     std::lock_guard<std::mutex> lock(this->mx);
     this->t = std::chrono::system_clock::now();
