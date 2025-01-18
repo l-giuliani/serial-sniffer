@@ -45,6 +45,8 @@ TEST_CASE("Helpers") {
         REQUIRE(rs >= 0);
         kc.disconnect();
 
+        std::future_status cv_stat = cbFut.wait_for(std::chrono::milliseconds(1000));
+        REQUIRE(cv_stat == std::future_status::ready);
         CallbackData cd = cbFut.get();
 
         INFO("len = " << cd.len);

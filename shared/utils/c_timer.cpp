@@ -1,10 +1,9 @@
-#include "timer.h"
+#include "c_timer.h"
 
 #include <chrono>
 #include <thread>
 
-CustomTimer::CustomTimer(CustomAction& customAction, int timeout_ms) {
-    this->customAction = customAction;
+CustomTimer::CustomTimer(CustomAction& customAction, int timeout_ms) : customAction(customAction) {
     this->timeout_ms = timeout_ms; 
     this->execute = false;
 }
@@ -31,9 +30,9 @@ void CustomTimer::start() {
     if(this->execute) {
         return;
     }
-    this->t = std::chrono::system_clock::now();
+    this->t = std::chrono::system_clock::now() + std::chrono::milliseconds(timeout_ms);
     this->execute = true;
-    this->fut = std::async(CustomTimer::timerFun, this);
+    this->fut = std::async(&CustomTimer::timerFun, this);
 }
 
 void CustomTimer::stop() {
@@ -50,4 +49,8 @@ void CustomTimer::stop() {
 void CustomTimer::refresh() {
     std::lock_guard<std::mutex> lock(this->mx);
     this->t = std::chrono::system_clock::now();
+}
+
+CustomTimer::~CustomTimer() {
+    this->stop(); 
 }

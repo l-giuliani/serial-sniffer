@@ -1,11 +1,13 @@
-file(GLOB_RECURSE TEST_SOURCES "integration/**/*.cpp" "unit/**/*.cpp")
+file(GLOB_RECURSE TEST_SOURCES "integration/**/*.cpp" "unit/**/*.cpp" "unit/*.cpp")
+list(APPEND TEST_SOURCES ${CMAKE_SOURCE_DIR}/shared/utils/c_timer.cpp)
 add_executable(snifferTests ${TEST_SOURCES})
 
 set(LIBDESTDIR ${CMAKE_SOURCE_DIR}/LGSniffer/lib)
 target_link_libraries(snifferTests PRIVATE Catch2::Catch2WithMain
                     ${LIBDESTDIR}/libsniffer.so
                     ${LIBDESTDIR}/libnl-genl-3.so 
-                    ${LIBDESTDIR}/libnl-3.so)
+                    ${LIBDESTDIR}/libnl-3.so
+                    pthread)
 
 include(CTest)
 include(Catch)
@@ -16,7 +18,8 @@ list(APPEND HEADER_DIRECTORIES ${CMAKE_SOURCE_DIR}/libsniffer/src
 
 list(APPEND HEADER_DIRECTORIES ${CMAKE_SOURCE_DIR}/vendor/libnl/include)
 list(APPEND HEADER_DIRECTORIES ${CMAKE_BINARY_DIR}/vendor/libnl_build/include)
-list(APPEND HEADER_DIRECTORIES ${CMAKE_SOURCE_DIR}/modules/serial-bridge/include)
+list(APPEND HEADER_DIRECTORIES ${CMAKE_SOURCE_DIR}/modules/serial-bridge/include
+                            ${CMAKE_SOURCE_DIR}/shared/utils)
 target_include_directories(snifferTests PRIVATE ${HEADER_DIRECTORIES})
 
 add_custom_command(TARGET snifferTests 

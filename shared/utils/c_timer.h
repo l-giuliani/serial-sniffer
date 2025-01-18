@@ -24,6 +24,7 @@ public:
     void start();
     void stop();
     void refresh();
+    ~CustomTimer();
 };
 
 #endif
