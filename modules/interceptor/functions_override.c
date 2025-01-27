@@ -57,6 +57,10 @@ void set_listener_function(char* _listener_function) {
 }
 EXPORT_SYMBOL(set_listener_function);
 
+void lg_sniff_keep_alive(char* device) {
+    //TODO handle keep alive
+}
+
 static int __init functions_override_init(void) {
     int ret;
 

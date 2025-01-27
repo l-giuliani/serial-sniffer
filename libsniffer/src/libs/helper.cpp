@@ -15,6 +15,8 @@
 #include <thread>
 #include <chrono>
 
+#define DEF_KEEP_ALIVE_TMO  300
+
 KernelCommListener::KernelCommListener() {
     this->callback = nullptr;
 }
@@ -50,6 +52,15 @@ void KernelCommListener::onData(const KernelMulticastData& kmd) {
 AsyncSniffer::AsyncSniffer() {
     this->active = false;
     this->initialized = false;
+    this->keepAliveTmo = DEF_KEEP_ALIVE_TMO;
+}
+
+/**
+ * @brief Set keep Alive Tmo
+ * @param keepAliveTmo The keep Alive Tmo
+*/
+void AsyncSniffer::setKeepAliveTmo(const uint32_t& keepAliveTmo) {
+    this->keepAliveTmo = keepAliveTmo;
 }
 
 /**
@@ -95,6 +106,12 @@ void AsyncSniffer::executeAsync() {
         if(!res) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        auto now = std::chrono::system_clock::now();
+        if(now > this->lastKeepAlive) {
+            //TODO send keep alive
+            //this->kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_KEEP_ALIVE, uint8_t* data, int len)
+            this->lastKeepAlive = now + std::chrono::seconds(this->keepAliveTmo);
+        } 
     }
 }
 
@@ -109,6 +126,7 @@ void AsyncSniffer::start() {
         return;
     }
     this->active = true;
+    this->lastKeepAlive = std::chrono::system_clock::now() + std::chrono::seconds(this->keepAliveTmo);
     this->future = std::async(&AsyncSniffer::executeAsync, this);
 }
 

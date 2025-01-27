@@ -2,9 +2,12 @@
 
 #include <linux/netlink.h>
 #include <net/genetlink.h>
+#include <linux/kallsyms.h>
 #include <linux/string.h>
 
 #include "../include/netlink_data.h"
+
+void (*sniff_keep_alive_function)(char*) = NULL;
 
 static struct genl_family sniff_family;
 static const struct genl_multicast_group sniff_mcgroup[] = {
@@ -40,6 +43,28 @@ static int sniff_cmd_test_handler (struct sk_buff *skb, struct genl_info *info) 
     return 0;
 }
 
+static int sniff_cmd_keep_alive_handler (struct sk_buff *skb, struct genl_info *info) {
+    char msg[256];
+    int len;
+    if (!info->attrs[SNIFF_ATTR_SER_DEVICE]) {
+        pr_err("Generic Netlink: messaggio vuoto ricevuto\n");
+        return -EINVAL;
+    }
+
+    len = nla_len(info->attrs[SNIFF_ATTR_SER_DEVICE]);
+    if (len >= sizeof(msg)) {
+        pr_err("Generic Netlink: messaggio troppo lungo\n");
+        return -EINVAL;
+    }
+
+    memcpy(msg, nla_data(info->attrs[SNIFF_ATTR_SER_DEVICE]), len);
+    msg[len] = '\0';
+
+    sniff_keep_alive_function(msg);
+
+    return 0;
+}
+
 static const struct genl_ops sniff_ops[] = {
     {
         .cmd = SNIFF_CMD_SNIFFED,
@@ -51,6 +76,11 @@ static const struct genl_ops sniff_ops[] = {
         .cmd = SNIFF_CMD_SEND_TEST,
         .flags = 0,
         .doit = sniff_cmd_test_handler
+    },
+    {
+        .cmd = SNIFF_CMD_KEEP_ALIVE,
+        .flags = 0,
+        .doit = sniff_cmd_keep_alive_handler
     }
 };
 
@@ -111,6 +141,8 @@ int user_comm_init(void) {
         pr_err("Generic Netlink: error registering family: %d\n", res);
         return res;
     }
+
+    sniff_keep_alive_function = (void (*)(char*))kallsyms_lookup_name("lg_sniff_keep_alive");
 
     return 0;
 }

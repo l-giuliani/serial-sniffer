@@ -58,6 +58,47 @@ void KernelMulticastData::printAttrs() const {
 }
 
 /**
+ * @brief DataDto constructor
+ * @param attribute netlink attribute
+ * @param dataVariant data
+*/
+DataDto::DataDto(int attribute, const DataVariant& dataVariant) {
+    this->attribute = attribute;
+    this->data = dataVariant;
+}
+
+int DataDto::getAttribute() {
+    return this->attribute;
+}
+
+DataDto::DataVariant& DataDto::getData() {
+    return this->data;
+}
+
+DataToSend::DataToSend() {
+    this->reset();
+}
+
+void DataToSend::add(int attribute, const DataDto::DataVariant& datavariant) {
+    std::shared_ptr<DataDto> data = std::make_shared<DataDto>(attribute, datavariant);
+    this->data.push_back(data);
+}
+
+void DataToSend::reset() {
+    this->it = data.begin();
+}
+
+std::shared_ptr<DataDto> DataToSend::next() {
+    std::shared_ptr<DataDto> value;
+    if(this->it == data.end()) {
+        return nullptr;
+    }
+    value = *this->it;
+    this->it++;
+    return value;
+}
+
+/**
  * @brief KernelComm contructor
  */
 KernelComm::KernelComm() {
@@ -279,12 +320,11 @@ bool KernelComm::recv() {
  * @brief Send data via Netlink
  * @param family The netlink family
  * @param command   The netlink command 
- * @param data  buffer that contains data
- * @param len   data len
+ * @param data  data to send
  * 
  * @return number of bytes sent or negative error code
 */
-int KernelComm::sendData(const char* family, int command, uint8_t* data, int len) {
+int KernelComm::sendData(const char* family, int command, DataToSend* data) {
     struct nl_msg *msg = NULL;
     int res;
 

@@ -1,3 +1,6 @@
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 file(GLOB_RECURSE TEST_SOURCES "integration/**/*.cpp" "unit/**/*.cpp" "unit/*.cpp")
 list(APPEND TEST_SOURCES ${CMAKE_SOURCE_DIR}/shared/utils/c_timer.cpp)
 add_executable(snifferTests ${TEST_SOURCES})

@@ -13,6 +13,9 @@
 
 #include <vector>
 #include <cstdint>
+#include <variant>
+#include <string>
+#include <memory>
 
 #include "netlink/netlink.h"
 #include "netlink/genl/genl.h"
@@ -56,6 +59,35 @@ public:
 };
 
 /**
+ * @class DataDto
+ * @brief data to send over netlink
+*/
+class DataDto {
+public:
+    using DataVariant = std::variant<int, std::string, void*>;
+    DataDto(int attribute, const DataVariant& dataVariant);
+    int getAttribute();
+    DataVariant& getData();
+private:
+    DataVariant data;
+    int attribute;
+};
+
+/**
+ * @class DataToSend
+*/
+class DataToSend {
+private:
+    std::vector<std::shared_ptr<DataDto>> data;
+    std::vector<std::shared_ptr<DataDto>>::iterator it;
+public:
+    DataToSend();
+    void add(int attribute, const DataDto::DataVariant& datavariant);
+    void reset();
+    std::shared_ptr<DataDto> next();
+};
+
+/**
  * @class KernelComm
  * @brief Communication with kernel modules by generic netlink
  */
@@ -80,7 +112,7 @@ public:
     bool registerCallback();
     void startListening();
     bool recv();
-    int sendData(const char* family, int command, uint8_t* data, int len);
+    int sendData(const char* family, int command, DataToSend* data);
     bool getConnected();
     bool disconnect();
     ~KernelComm();

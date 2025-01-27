@@ -41,7 +41,7 @@ TEST_CASE("Helpers") {
         
         res = kc.initAndConnect();
         REQUIRE(res == true);
-        int rs = kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_SEND_TEST, NULL, 0);
+        int rs = kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_SEND_TEST, NULL);
         REQUIRE(rs >= 0);
         kc.disconnect();
 

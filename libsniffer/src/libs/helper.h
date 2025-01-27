@@ -13,6 +13,7 @@
 
 #include "kernelComm.h"
 
+#include <chrono>
 #include <functional>
 #include <future>
 #include <stdint.h>
@@ -41,10 +42,13 @@ private:
     std::future<void> future;
     KernelCommListener kcl;
     KernelComm kc;
+    uint32_t keepAliveTmo;
+    std::chrono::time_point<std::chrono::system_clock> lastKeepAlive;
 
     void executeAsync();
 public:
     AsyncSniffer();
+    void setKeepAliveTmo(const uint32_t& keepAliveTmo);
     bool init(std::function<void(uint8_t*, int)> callback);
     void start();
     void stop();
