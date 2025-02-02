@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <time.h>
+#include <variant>
 
 /**
  * @brief set command in kernel multicast data
@@ -341,6 +342,22 @@ int KernelComm::sendData(const char* family, int command, DataToSend* data) {
     if (!genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ, familyId, 0, 0, command, 1)) {
         nlmsg_free(msg);
         return -3;
+    }
+
+    if(data != nullptr) {
+        while(std::shared_ptr<DataDto> d = data->next()) {
+            if(std::holds_alternative<int>(d->getData())) {
+                if (nla_put_u32(msg, d->getAttribute(), (uint32_t)std::get<int>(d->getData())) < 0) {
+                    nlmsg_free(msg);
+                    return -4;
+                }
+            } else if(std::holds_alternative<std::string>(d->getData())) {
+                if (nla_put_string(msg, d->getAttribute(), (std::get<std::string>(d->getData()).c_str())) < 0) {
+                    nlmsg_free(msg);
+                    return -5;
+                }
+            }
+        }
     }
 
     res = nl_send_auto(sock, msg);

@@ -17,6 +17,7 @@
 #include <functional>
 #include <future>
 #include <stdint.h>
+#include <string>
 
 /**
  * @class KernelCommListener
@@ -36,14 +37,16 @@ public:
  * @brief Async Sniffing reader
 */
 class AsyncSniffer {
-private:
+protected:
     bool active;
     bool initialized;
     std::future<void> future;
     KernelCommListener kcl;
     KernelComm kc;
+
     uint32_t keepAliveTmo;
     std::chrono::time_point<std::chrono::system_clock> lastKeepAlive;
+    DataToSend keepAliveData;
 
     void executeAsync();
 public:
@@ -53,6 +56,18 @@ public:
     void start();
     void stop();
     void uninit();
+};
+
+/**
+ * @class serial sniffer
+*/
+class AsyncSerialSniffer : public AsyncSniffer {
+private:
+    std::string serialPort;
+public:
+    AsyncSerialSniffer(std::string serialPort);
+    AsyncSerialSniffer();
+    void setSerialPort(std::string serialPort);
 };
 
 #endif

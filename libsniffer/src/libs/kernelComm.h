@@ -64,7 +64,7 @@ public:
 */
 class DataDto {
 public:
-    using DataVariant = std::variant<int, std::string, void*>;
+    using DataVariant = std::variant<int, std::string>;
     DataDto(int attribute, const DataVariant& dataVariant);
     int getAttribute();
     DataVariant& getData();

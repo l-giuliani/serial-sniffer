@@ -45,20 +45,22 @@ static int sniff_cmd_test_handler (struct sk_buff *skb, struct genl_info *info) 
 
 static int sniff_cmd_keep_alive_handler (struct sk_buff *skb, struct genl_info *info) {
     char msg[256];
-    int len;
+    //int len;
     if (!info->attrs[SNIFF_ATTR_SER_DEVICE]) {
         pr_err("Generic Netlink: messaggio vuoto ricevuto\n");
         return -EINVAL;
     }
 
-    len = nla_len(info->attrs[SNIFF_ATTR_SER_DEVICE]);
-    if (len >= sizeof(msg)) {
-        pr_err("Generic Netlink: messaggio troppo lungo\n");
-        return -EINVAL;
-    }
+    // len = nla_len(info->attrs[SNIFF_ATTR_SER_DEVICE]);
+    // if (len >= sizeof(msg)) {
+    //     pr_err("Generic Netlink: messaggio troppo lungo\n");
+    //     return -EINVAL;
+    // }
 
-    memcpy(msg, nla_data(info->attrs[SNIFF_ATTR_SER_DEVICE]), len);
-    msg[len] = '\0';
+    // memcpy(msg, nla_data(info->attrs[SNIFF_ATTR_SER_DEVICE]), len);
+    // msg[len] = '\0';
+
+    nla_strlcpy(msg, info->attrs[SNIFF_ATTR_SER_DEVICE], sizeof(msg));
 
     sniff_keep_alive_function(msg);
 

@@ -16,6 +16,6 @@ SnifferData snifferData;
  * @brief Global Async sniffer getter
  * @return The global asyncSniffer
 */
-AsyncSniffer& SnifferData::getAsyncSniffer() {
+AsyncSerialSniffer& SnifferData::getAsyncSniffer() {
     return asyncSniffer;
 }

@@ -17,6 +17,10 @@ void test() {
  * @return 0
 */
 int initializeSniffer(const char* portName) {
+    AsyncSerialSniffer& asyncSniffer = snifferData.getAsyncSniffer();
+
+    asyncSniffer.setSerialPort(portName);
+
     return 0;
 }
 
@@ -26,7 +30,7 @@ int initializeSniffer(const char* portName) {
  * @return 0 KO, -1 error;
 */
 int startAsyncSniffing(void(*callback)(uint8_t*, int)) {
-    AsyncSniffer& asyncSniffer = snifferData.getAsyncSniffer();
+    AsyncSerialSniffer& asyncSniffer = snifferData.getAsyncSniffer();
     
     bool res = asyncSniffer.init(callback);
     if(!res) {
@@ -43,8 +47,9 @@ int startAsyncSniffing(void(*callback)(uint8_t*, int)) {
  * @return 0
 */
 int stopAsyncSniffing() {
-    AsyncSniffer& asyncSniffer = snifferData.getAsyncSniffer();
+    AsyncSerialSniffer& asyncSniffer = snifferData.getAsyncSniffer();
 
     asyncSniffer.stop();
+    asyncSniffer.uninit();
     return 0;
 }

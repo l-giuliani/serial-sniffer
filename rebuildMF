@@ -1,4 +1,3 @@
-#!/bin/bash
 
 rm  LGSniffer/bin/* LGSniffer/bin/*/* LGSniffer/lib/* LGSniffer/modules/* LGSniffer/test/*
 mkdir tmpfolder

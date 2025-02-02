@@ -91,7 +91,7 @@ bool AsyncSniffer::init(std::function<void(uint8_t*, int)> callback) {
     if(!res) {
         return false;
     }
-    
+
     this->initialized = true;
     return true;
 }
@@ -102,16 +102,17 @@ bool AsyncSniffer::init(std::function<void(uint8_t*, int)> callback) {
 void AsyncSniffer::executeAsync() {
     bool res;
     while(this->active) {
+        auto now = std::chrono::system_clock::now();
+        if(now > this->lastKeepAlive) {
+            this->keepAliveData.reset();
+            this->kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_KEEP_ALIVE, &this->keepAliveData);
+            this->lastKeepAlive = now + std::chrono::seconds(this->keepAliveTmo);
+        } 
         res = kc.recv();
         if(!res) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-        auto now = std::chrono::system_clock::now();
-        if(now > this->lastKeepAlive) {
-            //TODO send keep alive
-            //this->kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_KEEP_ALIVE, uint8_t* data, int len)
-            this->lastKeepAlive = now + std::chrono::seconds(this->keepAliveTmo);
-        } 
+        
     }
 }
 
@@ -151,4 +152,28 @@ void AsyncSniffer::uninit() {
     this->stop();
     kc.disconnect();
     this->initialized = false;
+}
+
+/**
+ * @brief AsyncSerialSniffer constructor
+*/
+AsyncSerialSniffer::AsyncSerialSniffer(std::string serialPort) : AsyncSniffer() {
+    this->serialPort = serialPort;
+    this->keepAliveData.add(SNIFF_ATTR_SER_DEVICE, serialPort);
+}
+
+/**
+ * @brief AsyncSerialSniffer constructor
+*/
+AsyncSerialSniffer::AsyncSerialSniffer() : AsyncSniffer() {
+    this->serialPort = "/dev/ttyS1";
+    this->keepAliveData.add(SNIFF_ATTR_SER_DEVICE, this->serialPort);
+}
+
+/**
+ * @brief The serialport setter
+ * @param serialPort serial port name
+*/
+void AsyncSerialSniffer::setSerialPort(std::string serialPort) {
+   this->serialPort = serialPort;
 }

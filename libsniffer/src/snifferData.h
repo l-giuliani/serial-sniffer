@@ -20,9 +20,9 @@
 */
 class SnifferData {
 private:
-    AsyncSniffer asyncSniffer;
+    AsyncSerialSniffer asyncSniffer;
 public:
-    AsyncSniffer& getAsyncSniffer();
+    AsyncSerialSniffer& getAsyncSniffer();
 };
 
 extern SnifferData snifferData;
