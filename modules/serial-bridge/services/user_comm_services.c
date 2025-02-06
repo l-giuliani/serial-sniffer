@@ -46,8 +46,25 @@ static int sniff_cmd_test_handler (struct sk_buff *skb, struct genl_info *info) 
 static int sniff_cmd_keep_alive_handler (struct sk_buff *skb, struct genl_info *info) {
     char msg[256];
     //int len;
+    int i,j;
+    for (i = 0; i < SNIFF_CMD_KEEP_ALIVE_ATTR_MAX; i++) {  // SNIFF_ATTR_MAX should be the max attribute ID + 1
+        if (info->attrs[i]) {
+            void *data = nla_data(info->attrs[i]);
+            int len = nla_len(info->attrs[i]);
+
+            pr_info("  Attr[%d]: Length=%d, Data=", i, len);
+
+            // Print data as hex
+            for (j = 0; j < len; j++) {
+                pr_cont("%02X ", ((unsigned char *)data)[j]);
+            }
+            pr_cont("\n");
+        }
+    }
+
+
     if (!info->attrs[SNIFF_ATTR_SER_DEVICE]) {
-        pr_err("Generic Netlink: messaggio vuoto ricevuto\n");
+        pr_err("Generic Netlink: messaggio vuoto ricevuto keep alive\n");
         return -EINVAL;
     }
 
@@ -62,8 +79,13 @@ static int sniff_cmd_keep_alive_handler (struct sk_buff *skb, struct genl_info *
 
     nla_strlcpy(msg, info->attrs[SNIFF_ATTR_SER_DEVICE], sizeof(msg));
 
-    sniff_keep_alive_function(msg);
-
+    if(info->attrs[SNIFF_ATTR_EXEC_TEST]) {
+        pr_info("sending back data\n");
+        send_multicast_message(msg, strlen(msg));
+    } else {
+        //sniff_keep_alive_function(msg);
+    }
+pr_info("sending back data checkpoint\n");
     return 0;
 }
 

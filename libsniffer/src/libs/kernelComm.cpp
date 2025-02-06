@@ -16,6 +16,10 @@
 #include <time.h>
 #include <variant>
 
+#include <mutex>
+
+std::mutex nl_mutex;
+
 /**
  * @brief set command in kernel multicast data
  * 
@@ -81,8 +85,8 @@ DataToSend::DataToSend() {
 }
 
 void DataToSend::add(int attribute, const DataDto::DataVariant& datavariant) {
-    std::shared_ptr<DataDto> data = std::make_shared<DataDto>(attribute, datavariant);
-    this->data.push_back(data);
+    std::shared_ptr<DataDto> d = std::make_shared<DataDto>(attribute, datavariant);
+    this->data.push_back(d);
 }
 
 void DataToSend::reset() {
@@ -91,9 +95,19 @@ void DataToSend::reset() {
 
 std::shared_ptr<DataDto> DataToSend::next() {
     std::shared_ptr<DataDto> value;
-    if(this->it == data.end()) {
+
+std::cout << "=================\n"<<std::fflush;
+    std::cout << "size data array: " << data.size() << "\n"<<std::fflush;
+    for (std::shared_ptr<DataDto> v : data) {
+        std::cout << "print data: "<<std::get<std::string>(v->getData()) << "\n"<<std::fflush;
+    }
+    std::cout << "=================\n"<<std::fflush;
+
+    if(data.empty() || this->it == data.end()) {
+        std::cout << "ecco che invio le questioni 3\n"<<std::fflush;
         return nullptr;
     }
+    std::cout << "ecco che invio le questioni 4\n"<<std::fflush;
     value = *this->it;
     this->it++;
     return value;
@@ -313,6 +327,7 @@ void KernelComm::startListening() {
  * @brief receiving from netlink
 */
 bool KernelComm::recv() {
+    std::lock_guard<std::mutex> lock(nl_mutex);
     int res = nl_recvmsgs_default(this->sock);
     return (res == 0);
 }
@@ -328,6 +343,8 @@ bool KernelComm::recv() {
 int KernelComm::sendData(const char* family, int command, DataToSend* data) {
     struct nl_msg *msg = NULL;
     int res;
+
+    std::lock_guard<std::mutex> lock(nl_mutex);
 
     int familyId = resolveFamily(family);
     if (familyId < 0) {
@@ -345,21 +362,34 @@ int KernelComm::sendData(const char* family, int command, DataToSend* data) {
     }
 
     if(data != nullptr) {
-        while(std::shared_ptr<DataDto> d = data->next()) {
+        std::cout << "ecco che invio le questioni 1\n"<<std::fflush;
+        data->reset();
+        do {
+            std::shared_ptr<DataDto> d = data->next();
+            std::cout << "ecco che invio le questioni 2\n"<<std::fflush;
+            if(d == nullptr) {
+                std::cout << "ecco che invio le questioni 12\n"<<std::fflush;
+                break;
+            }
+            std::cout << "ecco che invio le questioni 8\n"<<std::fflush;
             if(std::holds_alternative<int>(d->getData())) {
+                std::cout << "ecco che invio le questioni 6\n"<<std::fflush;
                 if (nla_put_u32(msg, d->getAttribute(), (uint32_t)std::get<int>(d->getData())) < 0) {
                     nlmsg_free(msg);
                     return -4;
                 }
             } else if(std::holds_alternative<std::string>(d->getData())) {
+                std::cout << "ecco che invio le questioni 7\n"<<std::fflush;
+                std::cout << "si noti che sto mettendo l attributo "<<d->getAttribute()<<std::endl<<std::fflush;
                 if (nla_put_string(msg, d->getAttribute(), (std::get<std::string>(d->getData()).c_str())) < 0) {
                     nlmsg_free(msg);
                     return -5;
                 }
             }
-        }
+            std::cout << "ecco che invio le questioni 10\n"<<std::fflush;
+        } while(true);
     }
-
+    std::cout << "ecco che invio le questioni 11\n"<<std::fflush;
     res = nl_send_auto(sock, msg);
     nlmsg_free(msg);
 

@@ -103,12 +103,15 @@ void AsyncSniffer::executeAsync() {
     bool res;
     while(this->active) {
         auto now = std::chrono::system_clock::now();
+        res = kc.recv();
         if(now > this->lastKeepAlive) {
+            std::cout << "sto inviando il keep alive\n"<<std::fflush;
             this->keepAliveData.reset();
             this->kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_KEEP_ALIVE, &this->keepAliveData);
+            std::cout << "ho finito di inviare il keep alive\n"<<std::fflush;
             this->lastKeepAlive = now + std::chrono::seconds(this->keepAliveTmo);
         } 
-        res = kc.recv();
+        
         if(!res) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
@@ -127,7 +130,7 @@ void AsyncSniffer::start() {
         return;
     }
     this->active = true;
-    this->lastKeepAlive = std::chrono::system_clock::now() + std::chrono::seconds(this->keepAliveTmo);
+    //this->lastKeepAlive = std::chrono::system_clock::now() + std::chrono::seconds(this->keepAliveTmo);
     this->future = std::async(&AsyncSniffer::executeAsync, this);
 }
 
@@ -158,6 +161,7 @@ void AsyncSniffer::uninit() {
  * @brief AsyncSerialSniffer constructor
 */
 AsyncSerialSniffer::AsyncSerialSniffer(std::string serialPort) : AsyncSniffer() {
+    this->testMode = false;
     this->serialPort = serialPort;
     this->keepAliveData.add(SNIFF_ATTR_SER_DEVICE, serialPort);
 }
@@ -166,6 +170,7 @@ AsyncSerialSniffer::AsyncSerialSniffer(std::string serialPort) : AsyncSniffer() 
  * @brief AsyncSerialSniffer constructor
 */
 AsyncSerialSniffer::AsyncSerialSniffer() : AsyncSniffer() {
+    this->testMode = false;
     this->serialPort = "/dev/ttyS1";
     this->keepAliveData.add(SNIFF_ATTR_SER_DEVICE, this->serialPort);
 }
@@ -176,4 +181,16 @@ AsyncSerialSniffer::AsyncSerialSniffer() : AsyncSniffer() {
 */
 void AsyncSerialSniffer::setSerialPort(std::string serialPort) {
    this->serialPort = serialPort;
+}
+
+/**
+ * @brief set test mode
+*/
+void AsyncSerialSniffer::setTestMode(bool testMode) {
+    if(testMode) {
+        if(!this->testMode) {
+            this->testMode = true;
+            this->keepAliveData.add(SNIFF_ATTR_EXEC_TEST, this->serialPort);
+        }
+    }
 }

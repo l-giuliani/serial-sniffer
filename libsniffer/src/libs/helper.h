@@ -64,10 +64,12 @@ public:
 class AsyncSerialSniffer : public AsyncSniffer {
 private:
     std::string serialPort;
+    bool testMode;
 public:
     AsyncSerialSniffer(std::string serialPort);
     AsyncSerialSniffer();
     void setSerialPort(std::string serialPort);
+    void setTestMode(bool testMode);
 };
 
 #endif

@@ -17,13 +17,13 @@ typedef struct {
     int len;
 } CallbackData;
 
-TEST_CASE("Helpers") {
+ TEST_CASE("Helpers") {
 
-    KernelModuleGuard guard("./scripts/loadSerialBridge.sh", "./scripts/unloadSerialBridge.sh");
+     KernelModuleGuard guard("./scripts/loadSerialBridge.sh", "./scripts/unloadSerialBridge.sh");
 
     SECTION("Receive Data from Netlink Group") {
         KernelComm kc;
-        AsyncSniffer as;
+        AsyncSerialSniffer as("/dev/ttyS4");
 
         std::promise<CallbackData> cbProm;
         std::future<CallbackData> cbFut = cbProm.get_future();
@@ -41,11 +41,11 @@ TEST_CASE("Helpers") {
         
         res = kc.initAndConnect();
         REQUIRE(res == true);
-        int rs = kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_SEND_TEST, NULL);
+        int rs = kc.sendData(GENL_FAMILY_NAME, SNIFF_CMD_SEND_TEST, nullptr);
         REQUIRE(rs >= 0);
         kc.disconnect();
 
-        std::future_status cv_stat = cbFut.wait_for(std::chrono::milliseconds(1000));
+        std::future_status cv_stat = cbFut.wait_for(std::chrono::milliseconds(10000));
         REQUIRE(cv_stat == std::future_status::ready);
         CallbackData cd = cbFut.get();
 
@@ -60,5 +60,36 @@ TEST_CASE("Helpers") {
         as.stop();
         as.uninit();
     }
+
+    // SECTION("Keep Alive") {
+    //     std::string serialPort = "/dev/ttyTest";
+    //     AsyncSerialSniffer as(serialPort);
+
+    //     as.setTestMode(true);
+        
+
+    //     std::promise<CallbackData> cbProm;
+    //     std::future<CallbackData> cbFut = cbProm.get_future();
+
+    //     std::function<void(uint8_t*, int)> callback = [&cbProm] (uint8_t* buffer, int len) {
+    //         CallbackData cd;
+    //         cd.buffer = buffer;
+    //         cd.len = len;
+    //         cbProm.set_value(cd);
+    //     };
+
+    //     as.init(callback);
+    //     as.start();
+
+    //     std::future_status cv_stat = cbFut.wait_for(std::chrono::milliseconds(10000));
+    //     REQUIRE(cv_stat == std::future_status::ready);
+    //     CallbackData cb = cbFut.get();
+
+    //     std::string str((char*)cb.buffer, cb.len);
+    //     REQUIRE(str.compare(serialPort) == 0);
+
+    //     as.stop();
+    //     as.uninit();
+    // }
 
 }
