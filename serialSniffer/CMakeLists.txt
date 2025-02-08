@@ -8,9 +8,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-file(GLOB_RECURSE SOURCES "*.cpp" "**/*.cpp")
+file(GLOB_RECURSE SOURCES "*.cpp" "**/*.cpp" "**/**/*.cpp" "**/**/**/*.cpp")
 
-file(GLOB_RECURSE HEADERS "*.h" "**/*.h")
+file(GLOB_RECURSE HEADERS "*.h" "**/*.h" "**/**/*.h" "**/**/**/*.h")
 set(HEADER_DIRECTORIES)
 foreach(header IN LISTS HEADERS)
     get_filename_component(dir ${header} DIRECTORY)

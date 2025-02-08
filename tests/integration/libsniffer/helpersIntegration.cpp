@@ -61,35 +61,35 @@ typedef struct {
         as.uninit();
     }
 
-    // SECTION("Keep Alive") {
-    //     std::string serialPort = "/dev/ttyTest";
-    //     AsyncSerialSniffer as(serialPort);
+    SECTION("Keep Alive") {
+        std::string serialPort = "/dev/ttyTest";
+        AsyncSerialSniffer as(serialPort);
 
-    //     as.setTestMode(true);
+        as.setTestMode(true);
         
 
-    //     std::promise<CallbackData> cbProm;
-    //     std::future<CallbackData> cbFut = cbProm.get_future();
+        std::promise<CallbackData> cbProm;
+        std::future<CallbackData> cbFut = cbProm.get_future();
 
-    //     std::function<void(uint8_t*, int)> callback = [&cbProm] (uint8_t* buffer, int len) {
-    //         CallbackData cd;
-    //         cd.buffer = buffer;
-    //         cd.len = len;
-    //         cbProm.set_value(cd);
-    //     };
+        std::function<void(uint8_t*, int)> callback = [&cbProm] (uint8_t* buffer, int len) {
+            CallbackData cd;
+            cd.buffer = buffer;
+            cd.len = len;
+            cbProm.set_value(cd);
+        };
 
-    //     as.init(callback);
-    //     as.start();
+        as.init(callback);
+        as.start();
 
-    //     std::future_status cv_stat = cbFut.wait_for(std::chrono::milliseconds(10000));
-    //     REQUIRE(cv_stat == std::future_status::ready);
-    //     CallbackData cb = cbFut.get();
+        std::future_status cv_stat = cbFut.wait_for(std::chrono::milliseconds(10000));
+        REQUIRE(cv_stat == std::future_status::ready);
+        CallbackData cb = cbFut.get();
 
-    //     std::string str((char*)cb.buffer, cb.len);
-    //     REQUIRE(str.compare(serialPort) == 0);
+        std::string str((char*)cb.buffer, cb.len);
+        REQUIRE(str.compare(serialPort) == 0);
 
-    //     as.stop();
-    //     as.uninit();
-    // }
+        as.stop();
+        as.uninit();
+    }
 
 }
