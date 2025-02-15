@@ -27,7 +27,8 @@ set(LIBDESTDIR ${CMAKE_SOURCE_DIR}/LGSniffer/lib)
 target_link_libraries(SerialSniffer 
                 ${LIBDESTDIR}/libsniffer.so
                 ${LIBDESTDIR}/libnl-genl-3.so 
-                ${LIBDESTDIR}/libnl-3.so)
+                ${LIBDESTDIR}/libnl-3.so
+                pthread)
 
 add_custom_command(TARGET SerialSniffer 
                    POST_BUILD

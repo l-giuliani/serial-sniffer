@@ -9,20 +9,27 @@
 namespace NUtils {
 namespace NLogger {
 
-
+/**
+ * @class ConsolleAppender
+ * @brief Log to console by log formatter
+*/
 class ConsolleAppender : public Appender {
 private:
     std::shared_ptr<NUtils::StrFormatter> strFormatter;
 public:
     typedef enum {
         NONE,
-        CONSOLLE
+        HEX
     } FORMATTER_TYPE;
 
     ConsolleAppender(AppenderDto* appenderDto);
     void log(const std::string& log);
 };
 
+/**
+ * @class ConsolleAppenderDto
+ * @brief The appender Dto passed in constructor
+*/
 class ConsolleAppenderDto : public AppenderDto {
 private:
     ConsolleAppender::FORMATTER_TYPE formatterType;

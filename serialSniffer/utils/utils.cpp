@@ -7,7 +7,10 @@
 
 namespace NUtils {
 
-char *FTimeToLog( char *buff) {
+/**
+ * @brief time to log str
+*/
+static char *FTimeToLog( char *buff) {
 	struct	tm  tt;
 	struct	timeb  tb;
 
@@ -22,7 +25,10 @@ char *FTimeToLog( char *buff) {
 	return( buff );
 }
 
-void printbuf( char *title, char *buf, short len, char* out, int* size ) {
+/**
+ * @brief print hex log on buffer
+*/
+static void printbuf( char *title, char *buf, short len, char* out, int* size ) {
 #define BUFL	360
 	char	s[BUFL], *p;
 	int 	i, j, k, l;
@@ -79,6 +85,9 @@ Logger(PRV_FILE,"%s len = %04x", title, len );
 	*size += sprintf(&out[*size], "\n" );
 }
 
+/**
+ * @brief perform hex formatting
+*/
 std::string HexFormatter::format(const std::string& str) {
     char buff[4096];
     int len;

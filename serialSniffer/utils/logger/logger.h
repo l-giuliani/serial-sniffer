@@ -8,6 +8,10 @@
 namespace NUtils {
 namespace NLogger {
 
+/**
+ * @class Appender
+ * @brief interface for Log Appenders
+*/
 class Appender {
 public:
     typedef enum {
@@ -16,12 +20,20 @@ public:
     virtual void log(const std::string& log) = 0;
 };
 
+/**
+ * @class AppenderDto
+ * @brief interface for Log AppenderDto
+*/
 class AppenderDto {
 
 };
 
 }
 
+/**
+ * @class Logger
+ * @brief Logger with appenders
+*/
 class Logger {
 private:
     std::vector<std::shared_ptr<NLogger::Appender>> appenders;
