@@ -7,6 +7,8 @@
 #include "blocking_queue.h"
 #include "logger.h"
 
+#define STOP_LOG "LogManager_Stop"
+
 namespace Components {
 
 /**
@@ -15,15 +17,17 @@ namespace Components {
 */
 class LogManager {
 private:
-    Utils::DataStructure::BlockingQueue<std::string> bq;
+    NUtils::DataStructure::BlockingQueue<std::string> bq;
     std::future<void> fut;
     std::shared_ptr<NUtils::Logger> logger;
+    bool active;
 
     void asyncAction();
 public:
     LogManager(std::shared_ptr<NUtils::Logger> logger);
     void addLog(std::string log);
     void executeAsync();
+    void stopAsync();
 };
 
 }

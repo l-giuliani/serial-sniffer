@@ -5,6 +5,10 @@
 
 namespace NServices {
 
+/**
+ * @class SystemServices
+ * @brief system services
+*/
 class SystemServices {
 public:
     static void initSystem();

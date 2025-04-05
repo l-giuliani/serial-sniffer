@@ -6,6 +6,10 @@
 
 namespace NDto {
 
+/**
+ * @class SystemDto
+ * Dto of system params
+*/
 class SystemDto {
 private:
     std::string serialPort;

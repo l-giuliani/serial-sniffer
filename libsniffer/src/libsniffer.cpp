@@ -27,7 +27,7 @@ int initializeSniffer(const char* portName) {
 /**
  * @brief start sniffing
  * @param callback the callback called when data arrives
- * @return 0 KO, -1 error;
+ * @return 0 OK, -1 error;
 */
 int startAsyncSniffing(void(*callback)(uint8_t*, int)) {
     AsyncSerialSniffer& asyncSniffer = snifferData.getAsyncSniffer();

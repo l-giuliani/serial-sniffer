@@ -6,7 +6,7 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace Utils {
+namespace NUtils {
 namespace DataStructure {
 
 /**
