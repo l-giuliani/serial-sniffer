@@ -104,4 +104,4 @@ MODULE_LICENSE("GPL");
 
 MODULE_AUTHOR("Lorenzo Giuliani <lorenzo.giuliani@live.com>");
 
-MODULE_DESCRIPTION("Linux kernel serial bride");
+MODULE_DESCRIPTION("Linux kernel serial bridge");
