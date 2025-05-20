@@ -11,5 +11,6 @@ typedef struct {
 
 int data_sender_init(void);
 void data_sender_start_worker(void);
+void data_sender_delete(void);
 
 #endif

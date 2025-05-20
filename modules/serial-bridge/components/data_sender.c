@@ -25,11 +25,16 @@ int data_sender_init(void) {
     }
 
     INIT_WORK(&params.work, work_fn);
-    queue_work(my_wq, &params.work);
+    
 
     return 0;
 }
 
 void data_sender_start_worker(void) {
+    queue_work(my_wq, &params.work);
+}
 
+void data_sender_delete(void) {
+    flush_workqueue(my_wq);
+    destroy_workqueue(my_wq);
 }
