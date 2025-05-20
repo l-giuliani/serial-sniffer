@@ -6,7 +6,7 @@
 
 static struct kprobe kp;
 static int i = 0;
-void (*listener_function)(void) = NULL;
+void (*listener_function)(char*, int) = NULL;
 
 static int handler_pre(struct kprobe *p, struct pt_regs *regs) {
     struct tty_struct *tty; 
@@ -41,8 +41,8 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs) {
                     if(count > 0) {
                         memcpy(kbuf, buf, count);
                         kbuf[count] = '\0';
-                        listener_function();
                         pr_info("Scrittura intercettata sul PTS %d, testo: %s\n", pts_number,kbuf);
+                        listener_function(kbuf, count);                        
                     }
                 }
             }
@@ -53,7 +53,7 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs) {
 }
 
 void set_listener_function(char* _listener_function) {
-    listener_function = (void (*)(void))kallsyms_lookup_name(_listener_function);
+    listener_function = (void (*)(char*, int))kallsyms_lookup_name(_listener_function);
 }
 EXPORT_SYMBOL(set_listener_function);
 

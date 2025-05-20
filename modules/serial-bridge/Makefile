@@ -2,8 +2,8 @@ KERNEL_SRC = /lib/modules/$(shell uname -r)/build
 SOURCE := $(shell pwd)
 
 obj-m := serial_bridge.o
-ccflags-y += -I./services -I./include
-serial_bridge-objs := serial_bridge_main.o services/user_comm_services.o
+ccflags-y += -I./services -I./include -I./components
+serial_bridge-objs := serial_bridge_main.o services/user_comm_services.o components/data_sender.o
 
 all:
 	$(MAKE) -C $(KERNEL_SRC)  M=$(SOURCE)

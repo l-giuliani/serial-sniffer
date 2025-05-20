@@ -19,7 +19,7 @@ static bool sniff = false;
 
 void (*listener_function)(char*) = NULL;
 
-void serial_listener_callback(void) {
+void serial_listener_callback(char* buffer, int len) {
     pr_info("AWESOME CALLED !!!\n");
 }
 EXPORT_SYMBOL(serial_listener_callback);
