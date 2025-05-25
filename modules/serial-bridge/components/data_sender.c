@@ -1,22 +1,45 @@
 #include "data_sender.h"
 
-
-#define BUFFER_SIZE 1024
+#include <linux/string.h>
 
 static struct workqueue_struct *my_wq;
-static char buffer_mem[BUFFER_SIZE];
 static DATA_SENDER_PARAMS params;
 
 static void work_fn (struct work_struct* work) {
-    DATA_SENDER_PARAMS *data;
+    DATA_SENDER_PARAMS* _data;
 
-    data = container_of(work, DATA_SENDER_PARAMS, work);       
+    _data = container_of(work, DATA_SENDER_PARAMS, work);   
+
+    while(_data->active) {
+        if(kfifo_is_empty(&params.fifo)) {
+            //TODO block
+        }
+    }
+}
+
+int data_sender_add_data(char* buffer, int len) {
+    DATA_SENDER_ITEM data_sender_item;
+
+    if(len >= MAX_BUFFER_LEN) {
+        return -1;
+    }
+
+    memcpy(data_sender_item.kbuf, buffer, len);
+    data_sender_item.len = len;
+
+    if(kfifo_is_full(&params.fifo)) {
+        return -2;
+    }
+    kfifo_in(&params.fifo, &data_sender_item, 1);
+    return 1;
 }
 
 int data_sender_init(void) {
-    params.buffer.buf = buffer_mem;
-    params.buffer.head = 0;
-    params.buffer.tail = 0;
+    params.active = false;
+
+    if (kfifo_alloc(&params.fifo, sizeof(DATA_SENDER_PARAMS) * 128, GFP_KERNEL)) {
+        return -ENOMEM;
+    }
 
     my_wq = alloc_ordered_workqueue("data_sender_ordered_wq", WQ_MEM_RECLAIM);
     if (!my_wq) {
@@ -35,6 +58,7 @@ void data_sender_start_worker(void) {
 }
 
 void data_sender_delete(void) {
+    params.active = false;
     flush_workqueue(my_wq);
     destroy_workqueue(my_wq);
 }
